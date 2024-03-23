@@ -48,11 +48,11 @@ module.exports = function (otp) {
       <body>
         <div class="container">
           <div class="header">
-            <h2>ArtHub Email Verification</h2>
+            <h2>Codinoz Email Verification</h2>
           </div>
           <div class="content">
             <p>Hi there!</p>
-            <p>Your OTP (One-Time Password) for ArtHub registration is:</p>
+            <p>Your OTP (One-Time Password) for Codinoz registration is:</p>
             <p class="otp-code">${otp}</p>
             <p class="note">This OTP is only valid for 5 minutes.</p>
           </div>

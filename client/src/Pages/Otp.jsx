@@ -17,7 +17,11 @@ const OtpPage = () => {
   const email = location.state ? location.state.email : "";
 
   useEffect(() => {
-    startTimer();
+    if (email.length) {
+      startTimer();
+    } else {
+      return navigate(ClientUtils.Login);
+    }
   }, []);
 
   const startTimer = () => {
@@ -100,7 +104,7 @@ const OtpPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex items-center justify-center h-screen bg-green-200">
       <div className="bg-black text-white p-8 rounded shadow-md w-96 text-center">
         <h2 className="text-2xl font-bold mb-6">OTP Verification</h2>
         <p className="text-yellow-600 mb-2">
@@ -125,14 +129,16 @@ const OtpPage = () => {
           </div>
 
           <div className="flex items-center justify-center">
-          <button className="bg-yellow-500 text-black py-2 px-4 rounded hover:bg-green-600">
+            <button className="bg-yellow-500 text-black py-2 px-4 rounded hover:bg-green-600">
               Verify Otp
             </button>
           </div>
         </form>
 
         <div className="flex-1 flex flex-col items-center justify-center">
-          {timer ? <h1>{timer}</h1> :(
+          {timer ? (
+            <h1>{timer}</h1>
+          ) : (
             <p
               className="text-[#E0CDB6] cursor-pointer font-semibold"
               onClick={resendOtp}

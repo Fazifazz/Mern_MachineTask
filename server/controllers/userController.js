@@ -3,7 +3,7 @@ const User = require("../Models/userModel");
 const bcrypt = require("bcrypt");
 const otpTemplate = require("../util/otpTemplate");
 const Mail = require("../util/otpMailer");
-const jwt = require('jsonwebtoken')
+const jwt = require("jsonwebtoken");
 
 exports.registerUser = CatchAsync(async (req, res) => {
   const { name, email, mobile, address, password } = req.body;
@@ -13,7 +13,7 @@ exports.registerUser = CatchAsync(async (req, res) => {
   }
 
   //hash password
-  const hashPassword = await bcrpt.hash(password, 10);
+  const hashPassword = await bcrypt.hash(password, 10);
   const newOtp = generateOTP(4);
 
   const user = new User({
@@ -74,48 +74,55 @@ exports.verifyOtp = CatchAsync(async (req, res) => {
   }
 });
 
-
 exports.ResendOtp = CatchAsync(async (req, res) => {
-    if (!req.body.email) {
-      return res.json({ error: "email not found!" });
-    }
-    const user = await User.findOne({ email: req.body.email });
-    const newOtp = generateOTP(4)
-    const options = {
-      from: process.env.EMAIL,
-      to: req.body.email,
-      subject: "verification otp",
-      html: otpTemplate(newOtp),
-    };
-    await Mail.sendMail(options)
-      .then((res) => console.log("otp sended"))
-      .catch((err) => console.log(err.message));
-  
-    user.otp.code = newOtp;
-    user.otp.generatedAt = Date.now();
-    await user.save();
-    return res
-      .status(200)
-      .json({ success: "Otp Resended", email: req.body.email });
-  });
-  
+  if (!req.body.email) {
+    return res.json({ error: "email not found!" });
+  }
+  const user = await User.findOne({ email: req.body.email });
+  const newOtp = generateOTP(4);
+  const options = {
+    from: process.env.EMAIL,
+    to: req.body.email,
+    subject: "verification otp",
+    html: otpTemplate(newOtp),
+  };
+  await Mail.sendMail(options)
+    .then((res) => console.log("otp sended"))
+    .catch((err) => console.log(err.message));
 
-  exports.verifyLogin = CatchAsync(async (req, res) => {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email: email });
-    if (!user) {
-      return res.json({ error: "User not found" });
-    }
-    const samePass = await bcrypt.compare(password, user.password);
-    if (!samePass) {
-      return res.json({ error: "invalid password" });
-    }
-    if (!user.isVerified) {
-      await User.findOneAndDelete({ email: email });
-      return res.json({ error: "sorry,you are not verified!, sign up again" });
-    }
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
-    return res.status(200).json({ success: "Login Successfull", token, user });
+  user.otp.code = newOtp;
+  user.otp.generatedAt = Date.now();
+  await user.save();
+  return res
+    .status(200)
+    .json({ success: "Otp Resended", email: req.body.email });
+});
+
+exports.verifyLogin = CatchAsync(async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    return res.json({ error: "User not found" });
+  }
+  const samePass = await bcrypt.compare(password, user.password);
+  if (!samePass) {
+    return res.json({ error: "invalid password" });
+  }
+  if (!user.isVerified) {
+    await User.findOneAndDelete({ email: email });
+    return res.json({ error: "sorry,you are not verified!, sign up again" });
+  }
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "1d",
   });
+  return res.status(200).json({ success: "Login Successfull", token, user });
+});
+
+exports.fetchUserData = CatchAsync(async (req, res) => {
+  const userId = req.userId;
+  const user = await User.findById(userId);
+  if (user) {
+    return res.status(200).json({ success: true, user });
+  }
+  return res.json({ error: "user data not found" });
+});

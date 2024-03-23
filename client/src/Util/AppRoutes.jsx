@@ -10,6 +10,7 @@ import LoginPage from "../Pages/LoginPage";
 import Home from "../Pages/Home";
 import IsLoggedOutUser from "../middlewares/IsUserLoggedOut";
 import IsLoggedUser from "../middlewares/IsUserLoggedIn";
+import ErrorPage from "../Pages/ErrorPage";
 
 function AppRoutes() {
   const { loading } = useSelector((state) => state.alerts);
@@ -48,17 +49,21 @@ function AppRoutes() {
       <Routes>
         {/* landing route can be accessable by anyone */}
         <Route path={ClientUtils.landing} element={<LandingPage />} />
+
         {/* no token needed for these routes */}
         <Route element={<IsLoggedOutUser />}>
           <Route path={ClientUtils.Register} element={<Register />} />
           <Route path={ClientUtils.verifyOtp} element={<OtpPage />} />
           <Route path={ClientUtils.Login} element={<LoginPage />} />
         </Route>
+        
         {/* token needed for these routes */}
         <Route element={<IsLoggedUser />}>
           <Route path={ClientUtils.userHome} element={<Home />} />
         </Route>
-        {/* <Route path="*" element={<NotFound />} /> */}
+
+        {/* 404 error page  */}
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
     </div>
   );
