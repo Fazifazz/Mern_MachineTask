@@ -56,6 +56,7 @@ const OtpPage = () => {
         method: "post",
         data: { otp: otp, email: email },
       }).then((res) => {
+        dispatch(hideLoading());
         if (res.data.success) {
           dispatch(hideLoading());
           toast.success(res.data.success);
@@ -98,7 +99,6 @@ const OtpPage = () => {
       })
       .catch((err) => {
         dispatch(hideLoading());
-        toast.error("something went wrong");
         console.log(err.message);
       });
   };

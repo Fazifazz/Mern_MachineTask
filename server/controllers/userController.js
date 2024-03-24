@@ -9,7 +9,7 @@ exports.registerUser = CatchAsync(async (req, res) => {
   const { name, email, mobile, address, password } = req.body;
   const userExists = await User.findOne({ email: email });
   if (userExists) {
-    return res.json({ error: "User already exists" });
+    return res.status(400).json({ error: "User already exists" });
   }
 
   //hash password
@@ -53,7 +53,7 @@ function generateOTP(length) {
 
 exports.verifyOtp = CatchAsync(async (req, res) => {
   if (!req.body.otp) {
-    return res.json({ error: "please enter otp" });
+    return res.status(400).json({ error: "please enter otp" });
   }
   const user = await User.findOne({ email: req.body.email });
   const generatedAt = new Date(user.otp.generatedAt).getTime();
@@ -67,16 +67,16 @@ exports.verifyOtp = CatchAsync(async (req, res) => {
         .status(200)
         .json({ success: "Otp verified successfully", email: req.body.email });
     } else {
-      return res.json({ error: "otp is invalid" });
+      return res.status(400).json({ error: "otp is invalid" });
     }
   } else {
-    return res.json({ error: "otp expired!" });
+    return res.status(400).json({ error: "otp expired!" });
   }
 });
 
 exports.ResendOtp = CatchAsync(async (req, res) => {
   if (!req.body.email) {
-    return res.json({ error: "email not found!" });
+    return res.status(400).json({ error: "email not found!" });
   }
   const user = await User.findOne({ email: req.body.email });
   const newOtp = generateOTP(4);
@@ -102,15 +102,17 @@ exports.verifyLogin = CatchAsync(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email: email });
   if (!user) {
-    return res.json({ error: "User not found" });
+    return res.status(400).json({ error: "User not found" });
   }
   const samePass = await bcrypt.compare(password, user.password);
   if (!samePass) {
-    return res.json({ error: "invalid password" });
+    return res.status(400).json({ error: "invalid password" });
   }
   if (!user.isVerified) {
     await User.findOneAndDelete({ email: email });
-    return res.json({ error: "sorry,you are not verified!, sign up again" });
+    return res
+      .status(400)
+      .json({ error: "sorry,you are not verified!, sign up again" });
   }
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "1d",
@@ -124,5 +126,5 @@ exports.fetchUserData = CatchAsync(async (req, res) => {
   if (user) {
     return res.status(200).json({ success: true, user });
   }
-  return res.json({ error: "user data not found" });
+  return res.status(400).json({ error: "user data not found" });
 });

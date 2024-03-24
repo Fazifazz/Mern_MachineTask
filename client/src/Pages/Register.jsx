@@ -66,7 +66,6 @@ function Register() {
         })
         .catch((err) => {
           dispatch(hideLoading());
-          toast.error("something went wrong");
           console.log(err.message);
         });
     },
