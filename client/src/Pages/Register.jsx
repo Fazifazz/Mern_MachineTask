@@ -16,7 +16,7 @@ const registerSchema = Yup.object().shape({
     .max(10, "Mobile number must be 10 digits")
     .required("Mobile number is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
-  address: Yup.string().required("Address is required"),
+  address: Yup.string().min(30, "address must have atleast 30 digits").required("Address is required"),
   password: Yup.string()
     .min(8, "Password must be at least 8 characters")
     .matches(
@@ -38,6 +38,7 @@ function Register() {
       name: "",
       mobile: "",
       email: "",
+      address: "",
       password: "",
     },
     validationSchema: registerSchema,
